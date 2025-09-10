@@ -11,6 +11,13 @@ type Limit struct {
 	Orders   []*Order
 }
 
+type Match struct {
+	Ask         *Order
+	Bid         *Order
+	SizedFilled float64
+	Price       float64
+}
+
 type Order struct {
 	Size      float64
 	Bid       bool
