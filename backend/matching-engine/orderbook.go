@@ -80,6 +80,31 @@ func NewOrderBook() *OrderBook {
 	}
 }
 
-func (ob *OrderBook) PlaceOrder(price float64, o *Order) {}
+func (ob *OrderBook) PlaceOrder(price float64, o *Order) []Match {
+	if o.Size > 0.0 {
+		ob.Add(price, o)
+	}
+	return []Match{}
+}
 
-func (ob *OrderBook) Add(price float64, o *Order) {}
+func (ob *OrderBook) Add(price float64, o *Order) {
+	var limit *Limit
+
+	if o.Bid {
+		limit = ob.BidLimits[price]
+	} else {
+		limit = ob.AskLimits[price]
+	}
+
+	if limit == nil {
+		limit = NewLimit(price)
+		if o.Bid {
+			ob.BidLimits[price] = limit
+			ob.Bids = append(ob.Bids, limit)
+		} else {
+			ob.AskLimits[price] = limit
+			ob.Asks = append(ob.Asks, limit)
+		}
+	}
+
+}

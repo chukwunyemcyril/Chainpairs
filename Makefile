@@ -1,13 +1,15 @@
+# Makefile for Chainpairs (Go crypto exchange project)
+
+BINARY_NAME=main
+
+## Build the project
 build:
-	go build -o chainpairs main.go
+	go build -buildvcs=false -o $(BINARY_NAME) .
 
-run: build 
-	go run main.go &&./chainpairs 
+## Run the project (builds first if needed)
+run: build
+	./$(BINARY_NAME)
 
+## Clean up build artifacts
 clean:
-	rm -f chainpairs
-
-test:
-	go test -v ./...
-
-.PHONY: build run clean test
+	rm -f $(BINARY_NAME) $(BINARY_NAME).exe
