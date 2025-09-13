@@ -37,6 +37,16 @@ type OrderBook struct {
 	BidLimits map[float64]*Limit
 }
 
+type Limits []*Limit
+
+type ByBestAsk struct {
+	Limits
+}
+
+func (a ByBestAsk) Len() int           { return len(a.Limits) }
+func (a ByBestAsk) Swap(i, j int)      { a.Limits[i], a.Limits[j] = a.Limits[j], a.Limits[i] }
+func (a ByBestAsk) Less(i, j int) bool { return a.Limits[i].Price < a.Limits[j].Price }
+
 func NewLimit(price float64) *Limit {
 	return &Limit{
 		Price:  price,
@@ -58,6 +68,10 @@ func (l *Limit) AddOrder(o *Order) {
 	l.Orders = append(l.Orders, o)
 	l.Quantity += o.Size
 
+}
+
+func (l *Limit) String() string {
+	return fmt.Sprintf("Limit: %f %f", l.Price, l.Quantity)
 }
 
 func (l *Limit) DeleteOrder(o *Order) {
@@ -98,6 +112,8 @@ func (ob *OrderBook) Add(price float64, o *Order) {
 
 	if limit == nil {
 		limit = NewLimit(price)
+		limit.AddOrder(o)
+
 		if o.Bid {
 			ob.BidLimits[price] = limit
 			ob.Bids = append(ob.Bids, limit)
