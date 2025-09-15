@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-func assert(t *testing.T, a, b any) {
-	if !reflect.DeepEqual(a, b) {
-		t.Errorf("Expected %v, got %v", a, b)
+func assert(t *testing.T, got, expected any) {
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %v, got %v", expected, got)
 	}
 }
 
@@ -53,7 +53,33 @@ func TestPlaceMarketOrder(t *testing.T) {
 
 	assert(t, len(matches), 1)
 	assert(t, len(ob.asks), 1)
-	assert(t, ob.AskQuantity(), 10)
+	assert(t, ob.AskQuantity(), 10.0)
+	assert(t, matches[0].Ask, sellOrderA)
+	assert(t, matches[0].Bid, buyOrder)
+	assert(t, matches[0].SizedFilled, 10.0)
+	assert(t, matches[0].Price, 10000.0)
+	assert(t, buyOrder.isFilled(), true)
+
+	fmt.Printf("%+v\n", matches)
+
+}
+
+func TestPlaceMarketOrderMultiFill(t *testing.T) {
+	ob := NewOrderBook()
+
+	buyOrderA := NewOrder(true, 5)
+	buyOrderB := NewOrder(true, 8)
+	buyOrderC := NewOrder(true, 10)
+
+	ob.PlaceLimitOrder(10000, buyOrderA)
+	ob.PlaceLimitOrder(9000, buyOrderB)
+	ob.PlaceLimitOrder(5000, buyOrderC)
+
+	assert(t, ob.BidQuantity(), 23.0)
+
+	sellOrderA := NewOrder(false, 20)
+	matches := ob.PlaceMarketOrder(sellOrderA)
+	assert(t, len(matches), 3)
 
 	fmt.Printf("%+v\n", matches)
 

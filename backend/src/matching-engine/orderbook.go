@@ -148,7 +148,7 @@ func (l *Limit) fillOrder(a, b *Order) Match {
 		Ask:         ask,
 		Bid:         bid,
 		SizedFilled: SizedFilled,
-		Price:       ask.Limit.Price,
+		Price:       l.Price,
 	}
 }
 
@@ -197,6 +197,13 @@ func (ob *OrderBook) PlaceMarketOrder(o *Order) []Match {
 			matches = append(matches, limitmatches...)
 		}
 	} else {
+		if o.Size > ob.BidQuantity() {
+			panic(fmt.Errorf("not enough volume {%.2f} for market order{%.2f}", ob.BidQuantity(), o.Size))
+		}
+		for _, limit := range ob.bids {
+			limitmatches := limit.Fill(o)
+			matches = append(matches, limitmatches...)
+		}
 
 	}
 
